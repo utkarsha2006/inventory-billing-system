@@ -114,6 +114,7 @@ const invoiceSchema = new Schema(
           phone: String,
           email: String,
           footerNote: String,
+          gstRegistrationType: String,
         },
         { _id: false }
       ),

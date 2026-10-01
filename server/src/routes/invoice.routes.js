@@ -9,6 +9,7 @@ import {
   createInvoiceSchema,
   settlementSchema,
   listInvoicesQuery,
+  pdfQuery,
 } from '../validators/invoice.validators.js';
 
 const router = Router();
@@ -18,6 +19,7 @@ router.post('/preview', can('invoice:create'), validate({ body: previewInvoiceSc
 router.post('/', can('invoice:create'), validate({ body: createInvoiceSchema }), ctrl.create);
 router.get('/', can('invoice:read'), validate({ query: listInvoicesQuery }), ctrl.list);
 router.get('/:id', can('invoice:read'), validate({ params: idParam }), ctrl.get);
+router.get('/:id/pdf', can('invoice:read'), validate({ params: idParam, query: pdfQuery }), ctrl.pdf);
 router.post(
   '/:id/payments',
   can('invoice:create'),

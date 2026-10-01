@@ -61,3 +61,15 @@ export const listInvoicesQuery = paginationQuery.extend({
   paymentStatus: z.enum(['PAID', 'PARTIAL', 'UNPAID']).optional(),
   q: optional(z.string().trim().max(40)),
 });
+
+export const pdfQuery = z.object({
+  format: z.enum(['a4', 'thermal']).default('a4'),
+  widthMm: z.coerce
+    .number()
+    .refine((v) => v === 58 || v === 80, 'widthMm must be 58 or 80')
+    .optional(), // defaults to the shop's thermal width setting
+  download: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => v === 'true'),
+});

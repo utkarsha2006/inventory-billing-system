@@ -311,6 +311,7 @@ export async function createInvoice(user, input) {
               phone: shop.phone,
               email: shop.email,
               footerNote: shop.invoiceSettings?.footerNote,
+              gstRegistrationType: shop.gstRegistrationType,
             },
             placeOfSupplyStateCode: draft.placeOfSupplyStateCode,
             supplyType: draft.supplyType,
