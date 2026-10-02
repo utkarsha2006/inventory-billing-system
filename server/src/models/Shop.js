@@ -24,6 +24,7 @@ const shopSchema = new Schema(
       defaultPriceInclusive: { type: Boolean, default: true },
       thermalWidthMm: { type: Number, enum: [58, 80], default: 80 },
     },
+    alerts: { lastLowStockEmailOn: String }, // IST date "YYYY-MM-DD" of the last alert email
   },
   { timestamps: true, versionKey: false }
 );

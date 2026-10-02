@@ -42,9 +42,10 @@ export function presentInvoice(doc, role) {
   const canSeeCost = hasPermission(role, 'cost:view');
 
   if (out.items) {
-    out.items = out.items.map(({ qtyMilli, costPaise, batches, ...rest }) => ({
+    out.items = out.items.map(({ qtyMilli, costPaise, batches, returnedQtyMilli, ...rest }) => ({
       ...rest,
       qty: fromMilli(qtyMilli),
+      returnedQty: fromMilli(returnedQtyMilli ?? 0),
       ...(canSeeCost && { costPaise }),
       ...(batches && {
         batches: batches.map(({ qtyMilli: q, costPaise: c, ...b }) => ({
@@ -55,5 +56,17 @@ export function presentInvoice(doc, role) {
       }),
     }));
   }
+  return out;
+}
+
+export function presentPurchase(doc) {
+  const out = plain(doc);
+  if (out.items) out.items = out.items.map(({ qtyMilli, ...rest }) => ({ ...rest, qty: fromMilli(qtyMilli) }));
+  return out;
+}
+
+export function presentCreditNote(doc) {
+  const out = plain(doc);
+  if (out.items) out.items = out.items.map(({ qtyMilli, ...rest }) => ({ ...rest, qty: fromMilli(qtyMilli) }));
   return out;
 }

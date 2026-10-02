@@ -44,3 +44,13 @@ export function allocateProRata(total, weights) {
 // ₹1,23,456.78 (Indian digit grouping)
 export const formatINR = (paise) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(paise / 100);
+
+// Weighted-average unit cost of two lots, exact (BigInt), rounded half-up.
+// qty in milli-units, unit costs in paise.
+export function weightedAverage(qtyA, unitA, qtyB, unitB) {
+  const total = qtyA + qtyB;
+  if (total === 0) return unitB;
+  const t = BigInt(total);
+  const numerator = BigInt(qtyA) * BigInt(unitA) + BigInt(qtyB) * BigInt(unitB);
+  return Number((2n * numerator + t) / (2n * t));
+}

@@ -40,6 +40,7 @@ const itemSchema = new Schema({
   igstPaise: intReq(),
   lineTotalPaise: intReq(),
   costPaise: intReq(), // total cost of goods for this line (profit = taxable - cost)
+  returnedQtyMilli: { type: Number, default: 0 }, // derived counter, maintained by returns
   batches: [batchPickSchema],
 });
 

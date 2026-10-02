@@ -17,10 +17,12 @@ export const PERMISSIONS = Object.freeze({
   'stock:read': STAFF,
   'supplier:manage': STAFF,
   'purchase:write': STAFF,
+  'purchase:read': STAFF,
   'invoice:create': ALL,
   'invoice:read': ALL,
   'return:create': STAFF,
   'report:read': STAFF,
+  'return:read': STAFF,
   'cost:view': STAFF, // purchase price / profit visibility
 });
 

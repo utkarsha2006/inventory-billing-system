@@ -35,7 +35,7 @@ export async function applyStockChange(
 
   if (!product) {
     const existing = await Product.findOne({ _id: productId, shopId }).session(session).lean();
-    if (!existing || !existing.isActive) throw ApiError.notFound('Product not found or inactive');
+    if (!existing || (!existing.isActive && !allowInactive)) throw ApiError.notFound('Product not found or inactive');
     throw ApiError.conflict(
       `Insufficient stock for "${existing.name}": ${fromMilli(existing.stockMilli)} ${existing.unit} available`
     );
@@ -86,7 +86,7 @@ export async function applyStockChange(
 // Adds stock into a batch, creating the batch if it doesn't exist. Reused by purchases in Phase 6.
 export async function receiveIntoBatch(
   session,
-  { shopId, product, batchNo, expiryDate, qtyMilli, purchasePricePaise, type, reason, refType, refId, performedBy }
+  { shopId, product, batchNo, expiryDate, qtyMilli, purchasePricePaise, type, reason, refType, refId, performedBy, purchaseId}
 ) {
   const batch = await ProductBatch.findOneAndUpdate(
     { shopId, productId: product._id, batchNo },
@@ -96,6 +96,7 @@ export async function receiveIntoBatch(
         expiryDate,
         purchasePricePaise: purchasePricePaise ?? product.purchasePricePaise,
         qtyRemainingMilli: 0, // applyStockChange adds the quantity below
+        ...(purchaseId && { purchaseId }),
       },
     },
     { upsert: true, new: true, session }
@@ -115,6 +116,7 @@ export async function receiveIntoBatch(
     refType,
     refId,
     performedBy,
+    allowInactive: false,
   });
 }
 
@@ -159,7 +161,9 @@ export async function receiveBatch(shopId, userId, productId, input) {
 
 export async function listBatches(shopId, productId, { includeEmpty = false } = {}) {
   if (!(await Product.exists({ _id: productId, shopId }))) throw ApiError.notFound('Product not found');
-  const filter = { shopId, productId };
+  const filter = { _id: productId, shopId };
+  if (!allowInactive) filter.isActive = true; // returns may restock a product deactivated since the sale
+  if (deltaMilli < 0) filter.stockMilli = { $gte: -deltaMilli };
   if (!includeEmpty) filter.qtyRemainingMilli = { $gt: 0 };
   return ProductBatch.find(filter).sort({ expiryDate: 1 }).lean(); // earliest expiry first
 }

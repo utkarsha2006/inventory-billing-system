@@ -75,8 +75,8 @@ export function renderInvoiceA4(doc, inv, f) {
 
   // ---------------- Header ----------------
   const leftW = W * 0.64;
-  put(taxable ? 'TAX INVOICE' : 'BILL OF SUPPLY', M + leftW, y + 2, W - leftW, { font: f.bold, size: 15, align: 'right' });
-
+  // 1. the title line
+  put(inv.docTitle ?? (taxable ? 'TAX INVOICE' : 'BILL OF SUPPLY'), M + leftW, y + 2, W - leftW, { font: f.bold, size: 15, align: 'right' });
   put(shop.name ?? '', M, y, leftW, { font: f.bold, size: 16 });
   let ly = y + heightOf(shop.name ?? '', leftW, f.bold, 16) + 2;
 
@@ -131,12 +131,13 @@ export function renderInvoiceA4(doc, inv, f) {
   let my = y;
   put('INVOICE DETAILS', rx, my, half, { font: f.bold, size: 7.5, color: C.muted });
   my += 11;
+  // 2. the `pairs` array
   const pairs = [
-    ['Invoice No', inv.invoiceNo],
+    [inv.docTitle ? 'Credit Note No' : 'Invoice No', inv.invoiceNo],
     ['Date', `${fmtDateIST(inv.invoiceDate)}  ${fmtTimeIST(inv.invoiceDate)}`],
     ['Place of Supply', stateLabel(inv.placeOfSupplyStateCode)],
     ...(taxable ? [['Reverse Charge', 'No']] : []),
-    ['Payment', inv.paymentStatus],
+    inv.refLine ? ['Against Invoice', inv.refLine] : ['Payment', inv.paymentStatus],
   ];
   for (const [k, v] of pairs) {
     put(k, rx, my, 84, { size: 8.5, color: C.muted });
@@ -210,7 +211,8 @@ export function renderInvoiceA4(doc, inv, f) {
   put(words, M, wy, colL, { font: f.bold, size: 9 });
   wy += heightOf(words, colL, f.bold, 9) + 8;
 
-  put('PAYMENT', M, wy, colL, { font: f.bold, size: 7.5, color: C.muted });
+  // 3. the payments heading
+  put(inv.paymentsLabel ?? 'PAYMENT', M, wy, colL, { font: f.bold, size: 7.5, color: C.muted });
   wy += 11;
   for (const p of inv.payments ?? []) {
     put(`${p.mode}${p.reference ? ` (${p.reference})` : ''}`, M, wy, colL * 0.6, { size: 8.5, oneLine: true });

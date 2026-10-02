@@ -1,6 +1,7 @@
 import app from './app.js';
 import { env } from './config/env.js';
 import { connectDB, disconnectDB } from './config/db.js';
+import { scheduleLowStockAlerts } from './jobs/lowStockAlert.job.js';
 
 async function start() {
   await connectDB();
@@ -9,8 +10,15 @@ async function start() {
     console.log(`API listening on http://localhost:${env.PORT}/api/v1 (${env.NODE_ENV})`);
   });
 
+  let stopJobs = () => {};
+  if (env.ENABLE_CRON) {
+    stopJobs = scheduleLowStockAlerts();
+    console.log('Cron enabled: daily stock alerts at 08:00 IST');
+  }
+
   const shutdown = (signal) => {
     console.log(`${signal} received, shutting down`);
+    stopJobs();
     server.close(async () => {
       await disconnectDB();
       process.exit(0);

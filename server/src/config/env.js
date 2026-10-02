@@ -15,6 +15,12 @@ const schema = z.object({
   SMTP_PORT: z.coerce.number().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
+  ENABLE_CRON: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+  CRON_SECRET: z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.string().min(16, 'CRON_SECRET must be at least 16 chars').optional()
+  ),
+  ALERT_FROM_EMAIL: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);

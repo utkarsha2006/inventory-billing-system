@@ -7,3 +7,6 @@ export { StockMovement } from './StockMovement.js';
 export { Counter } from './Counter.js';
 export { Customer } from './Customer.js';
 export { Invoice } from './Invoice.js';
+export { Supplier } from './Supplier.js';
+export { Purchase } from './Purchase.js';
+export { CreditNote } from './CreditNote.js';

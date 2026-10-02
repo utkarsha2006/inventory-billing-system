@@ -77,3 +77,7 @@ export const MANUAL_ADJUSTMENT_TYPES = ['OPENING', 'ADJUSTMENT', 'DAMAGE', 'EXPI
 
 // ---------- Phase 4 ----------
 export const PAYMENT_MODES = ['CASH', 'UPI', 'CARD', 'CREDIT'];
+
+// ---------- Phase 6 ----------
+export const PURCHASE_PAYMENT_MODES = ['CASH', 'UPI', 'CARD', 'BANK', 'CHEQUE'];
+export const REFUND_MODES = ['CASH', 'UPI', 'CARD', 'CREDIT_ADJUST'];

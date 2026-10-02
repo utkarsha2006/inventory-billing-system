@@ -5,6 +5,11 @@ import userRoutes from './user.routes.js';
 import productRoutes from './product.routes.js';
 import customerRoutes from './customer.routes.js';
 import invoiceRoutes from './invoice.routes.js';
+import supplierRoutes from './supplier.routes.js';
+import purchaseRoutes from './purchase.routes.js';
+import creditNoteRoutes from './creditNote.routes.js';
+import alertRoutes from './alert.routes.js';
+import jobRoutes from './job.routes.js';
 
 const router = Router();
 
@@ -15,6 +20,11 @@ router.use('/users', userRoutes);
 router.use('/products', productRoutes);
 router.use('/customers', customerRoutes);
 router.use('/invoices', invoiceRoutes);
-// Phase 6+: purchases, credit notes. Phase 7: reports
+router.use('/suppliers', supplierRoutes);
+router.use('/purchases', purchaseRoutes);
+router.use('/credit-notes', creditNoteRoutes);
+router.use('/alerts', alertRoutes);
+router.use('/jobs', jobRoutes);
+// Phase 7: reports and dashboard
 
 export default router;

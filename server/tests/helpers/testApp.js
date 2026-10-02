@@ -13,6 +13,7 @@ export async function startTestApp() {
   process.env.JWT_ACCESS_SECRET = 'test-access-secret-0123456789';
   process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-0123456789';
   process.env.BCRYPT_ROUNDS = '4';
+  process.env.CRON_SECRET = 'test-cron-secret-0123456789';
 
   // Import after env vars are set: config/env.js validates on import.
   const { connectDB } = await import('../../src/config/db.js');

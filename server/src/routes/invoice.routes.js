@@ -11,6 +11,8 @@ import {
   listInvoicesQuery,
   pdfQuery,
 } from '../validators/invoice.validators.js';
+import * as returns from '../controllers/return.controller.js';
+import { createReturnSchema } from '../validators/return.validators.js';
 
 const router = Router();
 router.use(authenticate);
@@ -26,6 +28,13 @@ router.post(
   validate({ params: idParam, body: settlementSchema }),
   ctrl.addPayment
 );
+router.post(
+  '/:id/returns',
+  can('return:create'),
+  validate({ params: idParam, body: createReturnSchema }),
+  returns.create
+);
 // Phase 5: GET /:id/pdf   Phase 6: POST /:id/returns
+
 
 export default router;
