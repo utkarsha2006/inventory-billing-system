@@ -15,6 +15,8 @@ const schema = z.object({
   SMTP_PORT: z.coerce.number().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
+  // Proxy hops between the internet and this app: 1 on Render alone, 2 behind a Vercel rewrite.
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(1),
   ENABLE_CRON: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
   CRON_SECRET: z.preprocess(
     (v) => (v === '' ? undefined : v),

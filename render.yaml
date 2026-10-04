@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: inventory-billing-api
+    runtime: node
+    plan: free
+    region: singapore        # closest Render region to India
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "2"           # Vercel -> Render. Use 1 if the browser calls Render directly.
+      - key: ENABLE_CRON
+        value: "false"       # the free tier sleeps; a GitHub Actions schedule calls /jobs instead
+      - key: MONGODB_URI
+        sync: false          # paste your Atlas connection string in the dashboard
+      - key: CLIENT_ORIGIN
+        sync: false          # your Vercel URL (only used for direct, cross-origin calls)
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true  # copy this value into the GitHub secret of the same name
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: ALERT_FROM_EMAIL
+        sync: false

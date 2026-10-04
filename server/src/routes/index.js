@@ -10,6 +10,8 @@ import purchaseRoutes from './purchase.routes.js';
 import creditNoteRoutes from './creditNote.routes.js';
 import alertRoutes from './alert.routes.js';
 import jobRoutes from './job.routes.js';
+import reportRoutes from './report.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
 
 const router = Router();
 
@@ -25,6 +27,7 @@ router.use('/purchases', purchaseRoutes);
 router.use('/credit-notes', creditNoteRoutes);
 router.use('/alerts', alertRoutes);
 router.use('/jobs', jobRoutes);
-// Phase 7: reports and dashboard
+router.use('/reports', reportRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 export default router;

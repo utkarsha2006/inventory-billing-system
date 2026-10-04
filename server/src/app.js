@@ -12,12 +12,20 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-app.set('trust proxy', 1); // Render sits behind a proxy; needed for correct req.ip and rate limiting
+// A wrong value makes req.ip a proxy's address, and the rate limiter then treats all users as one client.
+app.set('trust proxy', env.TRUST_PROXY);
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 if (env.NODE_ENV !== 'test') app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// Tokens, invoices and reports must never sit in a CDN or shared cache. Handlers that want a different
+// policy override this (the PDF and export handlers already set their own Cache-Control).
+app.use('/api', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 
 app.use('/api/v1', apiLimiter, routes);
 

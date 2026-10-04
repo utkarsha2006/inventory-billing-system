@@ -1,0 +1,21 @@
+name: Daily stock alerts
+
+on:
+  schedule:
+    - cron: '30 2 * * *'   # 02:30 UTC = 08:00 IST
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the alert endpoint
+        env:
+          API_URL: ${{ secrets.API_URL }}          # the Render URL itself, e.g. https://inventory-billing-api.onrender.com
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          # --max-time/--retry give a sleeping free-tier service time to wake up.
+          curl --fail --silent --show-error --max-time 120 \
+               --retry 3 --retry-delay 20 --retry-all-errors \
+               -X POST "$API_URL/api/v1/jobs/low-stock-alerts" \
+               -H "x-cron-secret: $CRON_SECRET"

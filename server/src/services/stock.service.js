@@ -7,8 +7,7 @@ import { parsePagination, paginationMeta } from '../utils/pagination.js';
 const IST = '+05:30';
 
 /**
- * THE single place where stock changes. Sales (Phase 4), purchases and returns (Phase 6)
- * all go through here.
+ * THE single place where stock changes. Sales, purchases and returns all go through here.
  *
  * Atomically changes Product.stockMilli (and one batch, if given) and appends a ledger row.
  * MUST be called inside a transaction: pass `session`. If anything throws,
@@ -16,7 +15,7 @@ const IST = '+05:30';
  */
 export async function applyStockChange(
   session,
-  { shopId, productId, deltaMilli, type, reason, refType, refId, batchId, performedBy }
+  { shopId, productId, deltaMilli, type, reason, refType, refId, batchId, performedBy, allowInactive = false }
 ) {
   if (!Number.isInteger(deltaMilli) || deltaMilli === 0) {
     throw new Error('deltaMilli must be a non-zero integer'); // programmer error, not a 4xx
@@ -24,14 +23,11 @@ export async function applyStockChange(
 
   // The guard lives IN the update filter, so check and change are one atomic operation.
   // Two cashiers selling the last unit: exactly one matches; the other gets null.
-  const filter = { _id: productId, shopId, isActive: true };
+  const filter = { _id: productId, shopId };
+  if (!allowInactive) filter.isActive = true; // returns may restock a product deactivated since the sale
   if (deltaMilli < 0) filter.stockMilli = { $gte: -deltaMilli };
 
-  const product = await Product.findOneAndUpdate(
-    filter,
-    { $inc: { stockMilli: deltaMilli } },
-    { new: true, session }
-  );
+  const product = await Product.findOneAndUpdate(filter, { $inc: { stockMilli: deltaMilli } }, { new: true, session });
 
   if (!product) {
     const existing = await Product.findOne({ _id: productId, shopId }).session(session).lean();
@@ -83,10 +79,10 @@ export async function applyStockChange(
   return { product, batch, movement };
 }
 
-// Adds stock into a batch, creating the batch if it doesn't exist. Reused by purchases in Phase 6.
+// Adds stock into a batch, creating the batch if it doesn't exist. Reused by purchases.
 export async function receiveIntoBatch(
   session,
-  { shopId, product, batchNo, expiryDate, qtyMilli, purchasePricePaise, type, reason, refType, refId, performedBy, purchaseId}
+  { shopId, product, batchNo, expiryDate, qtyMilli, purchasePricePaise, type, reason, refType, refId, performedBy, purchaseId }
 ) {
   const batch = await ProductBatch.findOneAndUpdate(
     { shopId, productId: product._id, batchNo },
@@ -116,7 +112,6 @@ export async function receiveIntoBatch(
     refType,
     refId,
     performedBy,
-    allowInactive: false,
   });
 }
 
@@ -161,9 +156,7 @@ export async function receiveBatch(shopId, userId, productId, input) {
 
 export async function listBatches(shopId, productId, { includeEmpty = false } = {}) {
   if (!(await Product.exists({ _id: productId, shopId }))) throw ApiError.notFound('Product not found');
-  const filter = { _id: productId, shopId };
-  if (!allowInactive) filter.isActive = true; // returns may restock a product deactivated since the sale
-  if (deltaMilli < 0) filter.stockMilli = { $gte: -deltaMilli };
+  const filter = { shopId, productId };
   if (!includeEmpty) filter.qtyRemainingMilli = { $gt: 0 };
   return ProductBatch.find(filter).sort({ expiryDate: 1 }).lean(); // earliest expiry first
 }
