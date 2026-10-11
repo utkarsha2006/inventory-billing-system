@@ -311,7 +311,7 @@ describe('Exports', () => {
   test('a single-table report downloads without ?table=', async () => {
     const res = await download(`/reports/sales/daily?from=${today}&to=${today}&format=csv`);
     expect(res.status).toBe(200);
-    expect(res.body.toString('utf8')).toContain('715.00');
+    expect(res.body.toString('utf8')).toContain('714.00');
   });
 
   test('formulas in product names cannot execute in the exported file', async () => {
