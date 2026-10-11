@@ -12,7 +12,7 @@ export async function ensureCounter(shopId, key) {
 
 // Call INSIDE the transaction: if it aborts, the increment rolls back, so numbers stay gapless.
 export async function nextSequence(session, shopId, key) {
-  const counter = await Counter.findOneAndUpdate({ shopId, key }, { $inc: { seq: 1 } }, { new: true, session });
+  const counter = await Counter.findOneAndUpdate({ shopId, key }, { $inc: { seq: 1 } }, { returnDocument: 'after', session });
   if (!counter) throw new Error(`Counter "${key}" missing: call ensureCounter() first`);
   return counter.seq;
 }

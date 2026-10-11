@@ -2,7 +2,7 @@ import PDFDocument from 'pdfkit';
 import { registerFonts } from './fonts.js';
 import { mmToPt } from './helpers.js';
 import { renderInvoiceA4 } from './invoiceA4.js';
-//import { renderInvoiceThermal } from './invoiceThermal.js';
+import { renderInvoiceThermal } from './invoiceThermal.js';
 
 const collect = (doc) =>
   new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ const collect = (doc) =>
 const info = (invoice) => ({
   Title: invoice.invoiceNo,
   Author: invoice.shopSnapshot?.name ?? '',
-  Subject: invoice.documentType === 'TAX_INVOICE' ? 'Tax Invoice' : 'Bill of Supply',
+  Subject: invoice.docTitle ?? (invoice.documentType === 'TAX_INVOICE' ? 'Tax Invoice' : 'Bill of Supply'),
 });
 
 /**

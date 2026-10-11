@@ -38,6 +38,10 @@ export default function PosPage() {
   const totalPaise = preview.fresh ? preview.data.totals.grandTotalPaise : null;
   const payIssues = useMemo(() => paymentIssues(pos, totalPaise), [pos, totalPaise]);
   const canPay = preview.fresh && payIssues.length === 0 && !submitting;
+    const payHint =
+    pos.lines.length === 0
+      ? 'Add at least one item'
+      : issues[0] ?? (!preview.fresh ? (preview.error ?? 'Calculating totals…') : (payIssues[0] ?? null));
 
   const handlePick = useCallback(
     (product) => {
@@ -55,7 +59,12 @@ export default function PosPage() {
       if (!code) return false;
       try {
         const res = await api.get(`/products/barcode/${encodeURIComponent(code)}`);
-        handlePick(res.data.data.product);
+        const product = res.data.data.product;
+        if (product.stockQty <= 0) {
+          dispatch(toast('error', `${product.name} is out of stock`));
+          return true; // handled, so the search box still clears
+        }
+        handlePick(product);
         return true;
       } catch (e) {
         const info = e.response?.status === 404 ? e.response.data?.data : null;
@@ -145,6 +154,7 @@ export default function PosPage() {
         {submitError && <Alert type="error">{submitError}</Alert>}
         <Button size="lg" className="w-full" disabled={!canPay} onClick={checkout}>
           {submitting ? 'Saving…' : totalPaise !== null ? `Pay ${formatMoney(totalPaise)}  (F9)` : 'Pay'}
+          {!canPay && !submitting && payHint && <p className="text-center text-xs text-slate-500">{payHint}</p>}
         </Button>
         {pos.lines.length > 0 && (
           <Button variant="ghost" className="w-full" onClick={() => dispatch(clearBill())}>

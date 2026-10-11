@@ -95,7 +95,7 @@ export async function deactivateProduct(shopId, id) {
   const product = await Product.findOneAndUpdate(
     { _id: id, shopId },
     { isActive: false },
-    { new: true }
+    { returnDocument: 'after' }
   );
   if (!product) throw ApiError.notFound('Product not found');
   return product;

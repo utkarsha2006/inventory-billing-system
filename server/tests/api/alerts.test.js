@@ -1,10 +1,10 @@
 import request from 'supertest';
 import { startTestApp, stopTestApp, createShop, bearer } from '../helpers/testApp.js';
-import { setMailTransport } from '../../src/services/email.service.js';
 
 let app;
 let shop;
 let runLowStockAlerts;
+let setMailTransport;
 let sent = [];
 
 const post = (path, token, body) => request(app).post(`/api/v1${path}`).set(bearer(token)).send(body);
@@ -14,6 +14,7 @@ const goodTransport = { sendMail: async (msg) => { sent.push(msg); return {}; } 
 beforeAll(async () => {
   app = await startTestApp();
   ({ runLowStockAlerts } = await import('../../src/jobs/lowStockAlert.job.js'));
+  ({ setMailTransport } = await import('../../src/services/email.service.js'));
   shop = await createShop(app);
   await createShop(app); // a second shop with nothing to report
 

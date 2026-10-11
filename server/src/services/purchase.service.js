@@ -231,7 +231,7 @@ export async function recordPurchasePayment(shopId, userId, purchaseId, { mode, 
         $inc: { amountPaidPaise: amountPaise, balanceDuePaise: -amountPaise },
         $push: { payments: { mode, amountPaise, reference, paidAt: new Date(), paidBy: userId } },
       },
-      { new: true, session }
+      { returnDocument: 'after', session }
     );
 
     if (!purchase) {

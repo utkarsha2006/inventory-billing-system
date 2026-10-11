@@ -3,6 +3,10 @@ import { env } from './env.js';
 import '../models/index.js'; // registers every model before init()
 
 export async function connectDB() {
+  // Safety net: tests must never touch a real database.
+  if (env.NODE_ENV === 'test' && !/inventory_test/.test(env.MONGODB_URI)) {
+    throw new Error('Refusing to run tests against a non-test database. Check for a static import that loads env.js too early.');
+  }
   mongoose.set('strictQuery', true);
   await mongoose.connect(env.MONGODB_URI, {
     maxPoolSize: 10, // a small pool: free Atlas clusters cap total connections

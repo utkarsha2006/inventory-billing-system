@@ -384,7 +384,7 @@ export async function recordPayment(shopId, userId, invoiceId, { mode, amountPai
         $inc: { amountPaidPaise: amountPaise, balanceDuePaise: -amountPaise },
         $push: { payments: { mode, amountPaise, reference, receivedAt: new Date(), receivedBy: userId } },
       },
-      { new: true, session }
+      { returnDocument: 'after', session }
     );
 
     if (!invoice) {

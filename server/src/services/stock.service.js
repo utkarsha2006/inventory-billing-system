@@ -27,7 +27,7 @@ export async function applyStockChange(
   if (!allowInactive) filter.isActive = true; // returns may restock a product deactivated since the sale
   if (deltaMilli < 0) filter.stockMilli = { $gte: -deltaMilli };
 
-  const product = await Product.findOneAndUpdate(filter, { $inc: { stockMilli: deltaMilli } }, { new: true, session });
+  const product = await Product.findOneAndUpdate(filter, { $inc: { stockMilli: deltaMilli } }, { returnDocument: 'after', session });
 
   if (!product) {
     const existing = await Product.findOne({ _id: productId, shopId }).session(session).lean();
@@ -52,7 +52,7 @@ export async function applyStockChange(
     batch = await ProductBatch.findOneAndUpdate(
       batchFilter,
       { $inc: { qtyRemainingMilli: deltaMilli } },
-      { new: true, session }
+      { returnDocument: 'after', session }
     );
     if (!batch) throw ApiError.conflict('Batch not found or has insufficient stock');
   }
@@ -95,7 +95,7 @@ export async function receiveIntoBatch(
         ...(purchaseId && { purchaseId }),
       },
     },
-    { upsert: true, new: true, session }
+    { upsert: true, returnDocument: 'after', session }
   );
 
   if (batch.expiryDate.getTime() !== expiryDate.getTime()) {
